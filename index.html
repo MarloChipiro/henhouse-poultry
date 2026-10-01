@@ -678,7 +678,7 @@ function openWorkspace(type) {
   showOnly('workspaceView');
   let mod = embeddedModules[type] || { title: 'Workspace', data: '' };
   $('workTitle').textContent = mod.title;
-  let doc = $('frame').contentDocument \vert{}\vert{}$('frame').contentWindow.document;
+  let doc = $('frame').contentDocument || $('frame').contentWindow.document;
   doc.open();
   doc.write(mod.data);
   doc.close();
