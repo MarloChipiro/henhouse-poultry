@@ -1,11 +1,24 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "henhouse-poultry-2.onrender",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "henhouse-poultry-2.onrender",
+  "name": "Henhouse Poultry Hub",
+  "short_name": "PoultryHub",
   "start_url": "/",
-  "theme_color": "#ffffff"
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#163f2b",
+  "theme_color": "#163f2b",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
