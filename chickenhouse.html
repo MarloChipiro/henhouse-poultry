@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#163f2b">
+  <title>Henhouse Poultry Hub</title>
+
+  <!-- PWA App Manifest Injection -->
+  <link rel="manifest" id="manifestLink">
+
+  <style>
+    :root {
+      --g: #1f6644;
+      --d: #153d2b;
+      --lime: #dff2bc;
+      --cream: #f5f7f1;
+      --ink: #20332a;
+      --muted: #6d7e75;
+      --line: #dfe7df;
+      --white: #fff;
+      --shadow: 0 18px 55px #153d2b1d;
+      --warn: #d97706;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+    }
+    button, input, textarea, select { font: inherit; }
+    .hide { display: none !important; }
+
+    /* Top Bar */
+    .topbar {
+      height: 66px;
+      background: var(--d);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand { display: flex; gap: 11px; align-items: center; font-weight: 800; }
+    .logo {
+      width: 39px;
+      height: 39px;
+      border-radius: 13px;
+      background: var(--lime);
+      color: var(--d);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+    .brand small { display: block; font-size: 10px; color: #bdd0c3; font-weight: 500; }
+    .status {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      transition: background 0.3s, color 0.3s;
+    }
+    .status.online { background: #2e7d32; color: #fff; }
+    .status.offline { background: #c62828; color: #fff; }
+    .status.syncing { background: var(--warn); color: #fff; }
+
+    /* Layout Shell */
+    .shell { min-height: calc(100vh - 66px); }
+    .hero {
+      min-height: calc(100vh - 66px);
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+      background: radial-gradient(circle at 85% 15%, #dff2bc 0, transparent 28%), linear-gradient(145deg, #f8faf4, #edf4ea);
+    }
+    .auth {
+      width: min(460px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 29px;
+      box-shadow: var(--shadow);
+    }
+    .auth h1 { margin: 0 0 7px; font-size: 28px; }
+    .auth p { color: var(--muted); margin: 0 0 20px; }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #eef3ed;
+      border-radius: 11px;
+      padding: 4px;
+      margin-bottom: 18px;
+    }
+    .tabs button {
+      border: 0;
+      background: transparent;
+      padding: 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: #fff;
+      color: var(--g);
+      box-shadow: 0 2px 8px #153d2b12;
+    }
+    .field { margin: 12px 0; }
+    .field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cfdad1;
+      border-radius: 10px;
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus { border-color: #6f9f80; box-shadow: 0 0 0 3px #1f664412; }
+    .primary {
+      width: 100%;
+      border: 0;
+      background: var(--g);
+      color: #fff;
+      padding: 13px;
+      border-radius: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 7px;
+    }
+    .hint { font-size: 11px !important; margin-top: 13px !important; }
+    .err { min-height: 18px; color: #a92b2b; font-size: 12px; margin: 7px 0; }
+
+    /* Selection & Workspace Views */
+    .choose { max-width: 980px; margin: auto; padding: 45px 20px; }
+    .choosehead { text-align: center; margin-bottom: 27px; }
+    .choosehead h1 { margin: 0 0 7px; }
+    .choosehead p { color: var(--muted); margin: 0; }
+    .rolegrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .role {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: left;
+      box-shadow: 0 8px 25px #153d2b0c;
+      cursor: pointer;
+      transition: .18s;
+    }
+    .role:hover { transform: translateY(-2px); border-color: #a9c5ae; }
+    .role .ico { font-size: 38px; }
+    .role h2 { margin: 11px 0 5px; }
+    .role p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .farmergrid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; margin: 0 auto; }
+    .back { border: 0; background: transparent; color: var(--g); font-weight: 800; margin-bottom: 20px; cursor: pointer; }
+
+    .workspace { height: calc(100vh - 66px); position: relative; background: #fff; }
+    .workspace iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .workbar {
+      height: 46px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+    }
+    .workbar button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      color: var(--d);
+      font-weight: 700;
+    }
+    .worktitle { font-size: 13px; font-weight: 800; }
+    .workspace.withbar { height: calc(100vh - 112px); }
+
+    /* Item Addition Form / Dashboard */
+    .dashboard-panel { padding: 20px; max-width: 800px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--line); }
+    .card h2 { margin-top: 0; color: var(--d); }
+
+    .item-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .item-card { background: #f9fbf8; border: 1px solid var(--line); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .item-card .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+    .badge.synced { background: #dcfce7; color: #166534; }
+    .badge.pending { background: #fef3c7; color: #92400e; }
+
+    .offline-note {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: #23382f;
+      color: white;
+      padding: 9px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      z-index: 50;
+      box-shadow: var(--shadow);
+    }
+
+    @media(max-width:650px) {
+      .topbar { height: 58px; padding: 0 12px; }
+      .brand { font-size: 14px; }
+      .brand small { display: none; }
+      .logo { width: 34px; height: 34px; }
+      .shell, .hero { min-height: calc(100vh - 58px); }
+      .auth { padding: 22px; border-radius: 19px; }
+      .rolegrid, .farmergrid { grid-template-columns: 1fr; }
+      .choose { padding: 28px 15px; }
+      .workspace { height: calc(100vh - 58px); }
+      .workspace.withbar { height: calc(100vh - 104px); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🐔</span>
+    <div>Henhouse Poultry Hub<small>Farm management · Selling · Buying</small></div>
+  </div>
+  <div class="status online" id="net">Online</div>
+</header>
+
+<main class="shell">
+
+  <!-- Authentication Screen -->
+  <section id="authView" class="hero">
+    <div class="auth">
+      <h1>Welcome</h1>
+      <p>Log in once to access your farm features anywhere, online or offline.</p>
+      <div class="tabs">
+        <button id="inTab" class="active" onclick="setMode('in')">Sign in</button>
+        <button id="upTab" onclick="setMode('up')">Sign up</button>
+      </div>
+      <form id="authForm">
+        <div class="field hide" id="nameField">
+          <label>Full name</label>
+          <input id="name" autocomplete="name" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label>Email address</label>
+          <input id="email" type="email" autocomplete="email" required placeholder="name@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="password" type="password" minlength="6" required placeholder="At least 6 characters">
+        </div>
+        <div class="field hide" id="confirmField">
+          <label>Confirm password</label>
+          <input id="confirm" type="password" minlength="6" placeholder="Repeat password">
+        </div>
+        <div id="err" class="err"></div>
+        <button class="primary" id="submitBtn">Sign in →</button>
+      </form>
+      <p class="hint">⚡ Offline Ready: Logging in stays active on this device like WhatsApp. You can add items offline and sync when connected.</p>
+    </div>
+  </section>
+
+  <!-- Role Selection Screen -->
+  <section id="roleView" class="choose hide">
+    <div class="choosehead">
+      <h1 id="hello">Choose how you want to continue</h1>
+      <p>Select the workspace you want to open.</p>
+    </div>
+    <div class="rolegrid">
+      <button class="role" onclick="farmerOptions()">
+        <div class="ico">👩🏾‍‍🌾</div>
+        <h2>Farmer</h2>
+        <p>Manage farm items, add new items offline, view GIS decision support, or sell poultry products.</p>
+      </button>
+      <button class="role" onclick="openWorkspace('buyer')">
+        <div class="ico">🛒</div>
+        <h2>Buyer / Customer</h2>
+        <p>Browse poultry listings, saved seller contacts, and cached products.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- Farmer Dashboard Options -->
+  <section id="farmerView" class="choose hide">
+    <button class="back" onclick="showOnly('roleView')">← Back to roles</button>
+    <div class="choosehead">
+      <h1>Farmer Workspace</h1>
+      <p>Manage production or market listings.</p>
+    </div>
+    <div class="rolegrid farmergrid">
+      <button class="role" onclick="openWorkspace('management')">
+        <div class="ico">📊</div>
+        <h2>Farm Management</h2>
+        <p>Open GIS decision support, inspect maps, and monitor weather.</p>
+      </button>
+      <button class="role" onclick="openWorkspace('seller')">
+        <div class="ico">🏪</div>
+        <h2>Add & Sell Products</h2>
+        <p>Add new stock/listings to Supabase (works offline) and manage listings.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- Add Item & Seller Panel Section -->
+  <section id="sellerView" class="choose hide">
+    <button class="back" onclick="showOnly('farmerView')">← Back to farmer choices</button>
+    <div class="dashboard-panel">
+      
+      <!-- New Item Entry Card -->
+      <div class="card">
+        <h2>➕ Add New Item / Listing</h2>
+        <form id="itemForm">
+          <div class="field">
+            <label>Item Name / Product</label>
+            <input id="itemName" required placeholder="e.g. Day-old Broilers, Fresh Eggs, Feed Bag">
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select id="itemCategory">
+              <option value="Broilers">Broilers</option>
+              <option value="Layers">Layers / Eggs</option>
+              <option value="Feed">Poultry Feed</option>
+              <option value="Equipment">Equipment & Vet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Price ($ USD / ZWL)</label>
+            <input id="itemPrice" type="number" step="0.01" required placeholder="e.g. 5.50">
+          </div>
+          <div class="field">
+            <label>Quantity Available</label>
+            <input id="itemQty" type="number" required placeholder="e.g. 100">
+          </div>
+          <button class="primary" type="submit">Save Item (Offline Supported)</button>
+        </form>
+      </div>
+
+      <!-- Item Inventory Listing -->
+      <div class="card">
+        <h2>📦 Inventory & Listings</h2>
+        <div id="syncStatusSummary" style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+          All records saved locally and uploaded to Supabase automatically when online.
+        </div>
+        <div class="item-list" id="itemList">
+          <!-- Items auto render here -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Workspace Map/GIS Frame View -->
+  <section id="workspaceView" class="hide">
+    <div class="workbar">
+      <button onclick="exitWorkspace()">← Menu</button>
+      <span class="worktitle" id="workTitle">Workspace</span>
+      <button onclick="logout()">Sign out</button>
+    </div>
+    <div class="workspace withbar">
+      <iframe id="frame" title="Poultry workspace"></iframe>
+    </div>
+  </section>
+
+</main>
+
+<div id="offline" class="offline-note hide">Offline mode — changes saved locally</div>
+
+<script>
+/* ==========================================================================
+   1. PWA Dynamic Manifest & Icon Generator (Adds Homescreen App Capability)
+   ========================================================================== */
+(function setupPWA() {
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#163f2b"/><text x="50%" y="68%" font-size="280" text-anchor="middle">🐔</text></svg>`;
+  const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSVG);
+
+  const manifest = {
+    name: "Henhouse Poultry Hub",
+    short_name: "PoultryHub",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#163f2b",
+    theme_color: "#163f2b",
+    icons: [
+      { src: iconUrl, sizes: "192x192", type: "image/svg+xml" },
+      { src: iconUrl, sizes: "512x512", type: "image/svg+xml" }
+    ]
+  };
+
+  const stringManifest = JSON.stringify(manifest);
+  const blob = new Blob([stringManifest], { type: 'application/json' });
+  document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(blob));
+})();
+
+/* ==========================================================================
+   2. Service Worker Inline Registration for Offline Caching
+   ========================================================================== */
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE_NAME = 'poultry-hub-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+          return cache.addAll(['./']);
+        })
+      );
+      self.skipWaiting();
+    });
+
+    self.addEventListener('fetch', e => {
+      // Offline-first strategy
+      e.respondWith(
+        caches.match(e.request).then(response => {
+          return response || fetch(e.request).then(fetchRes => {
+            return caches.open(CACHE_NAME).then(cache => {
+              if (e.request.url.startsWith('http')) {
+                cache.put(e.request, fetchRes.clone());
+              }
+              return fetchRes;
+            });
+          });
+        }).catch(() => caches.match('./'))
+      );
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+/* ==========================================================================
+   3. WhatsApp-Style Persistent One-Time Session Management
+   ========================================================================== */
+const accountsKey = 'henhouse_accounts_v1';
+const sessionKey = 'henhouse_persistent_session_v1'; // LocalStorage for 1-time login
+const itemsKey = 'henhouse_offline_items_v1';
+
+let mode = 'in';
+const $ = id => document.getElementById(id);
+
+function setMode(m) {
+  mode = m;
+  let up = m === 'up';
+  $('inTab').classList.toggle('active', !up);
+  $('upTab').classList.toggle('active', up);$('nameField').classList.toggle('hide', !up);
+  $('confirmField').classList.toggle('hide', !up);$('name').required = up;
+  $('confirm').required = up;
+  $('submitBtn').textContent = up ? 'Create account →' : 'Sign in →';
+  $('err').textContent = '';
+}
+
+function accounts() {
+  try { return JSON.parse(localStorage.getItem(accountsKey) || '{}'); } catch { return {}; }
+}
+
+async function digest(s) {
+  if (crypto.subtle) {
+    let b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  return btoa(unescape(encodeURIComponent(s)));
+}
+
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  let email = $('email').value.trim().toLowerCase();
+  let pass = $('password').value;
+  let a = accounts();
+  let h = await digest(pass);
+
+  if (mode === 'up') {
+    let n = $('name').value.trim();
+    if (!n) return $('err').textContent = 'Please enter your name.';
+    if (pass !== $('confirm').value) return$('err').textContent = 'Passwords do not match.';
+    if (a[email]) return $('err').textContent = 'An account with this email already exists.';
+    a[email] = { name: n, hash: h };
+    localStorage.setItem(accountsKey, JSON.stringify(a));
+    // Store persistently so user stays logged in
+    localStorage.setItem(sessionKey, JSON.stringify({ email, name: n }));
+    enter();
+  } else {
+    if (!a[email] || a[email].hash !== h) return $('err').textContent = 'Incorrect email or password.';
+    localStorage.setItem(sessionKey, JSON.stringify({ email, name: a[email].name }));
+    enter();
+  }
+};
+
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch { return null; }
+}
+
+function enter() {
+  let s = getSession();
+  if (!s) return showOnly('authView');
+  $('hello').textContent = 'Welcome, ' + s.name.split(' ')[0];
+  showOnly('roleView');
+}
+
+function logout() {
+  localStorage.removeItem(sessionKey);
+  showOnly('authView');
+}
+
+function showOnly(id) {
+  ['authView', 'roleView', 'farmerView', 'sellerView', 'workspaceView'].forEach(x => {
+    $(x).classList.toggle('hide', x !== id);
+  });
+}
+
+function farmerOptions() {
+  showOnly('farmerView');
+}
+
+/* ==========================================================================
+   4. Offline Item Creation & Supabase Sync Engine
+   ========================================================================== */
+function getLocalItems() {
+  try { return JSON.parse(localStorage.getItem(itemsKey) || '[]'); } catch { return []; }
+}
+
+function saveLocalItems(items) {
+  localStorage.setItem(itemsKey, JSON.stringify(items));
+  renderItems();
+}
+
+$('itemForm').onsubmit = function(e) {
+  e.preventDefault();
+  const name = $('itemName').value.trim();
+  const category = $('itemCategory').value;
+  const price = parseFloat($('itemPrice').value);
+  const qty = parseInt($('itemQty').value, 10);
+
+  const newItem = {
+    id: 'item_' + Date.now(),
+    name: name,
+    category: category,
+    price: price,
+    quantity: qty,
+    created_at: new Date().toISOString(),
+    synced: false
+  };
+
+  const items = getLocalItems();
+  items.unshift(newItem);
+  saveLocalItems(items);
+
+  $('itemForm').reset();
+
+  // Try syncing right away if online
+  if (navigator.onLine) {
+    syncItemsToSupabase();
+  }
+};
+
+function renderItems() {
+  const items = getLocalItems();
+  const listEl = $('itemList');
+  if (!items.length) {
+    listEl.innerHTML = '<div style="color:var(--muted); font-size:13px;">No items added yet.</div>';
+    return;
+  }
+
+  listEl.innerHTML = items.map(item => `
+    <div class="item-card">
+      <div>
+        <strong>${escapeHTML(item.name)}</strong>
+        <div style="font-size:12px; color:var(--muted);">${item.category} • $${item.price} • Qty: ${item.quantity}</div>
+      </div>
+      <div>
+        <span class="badge ${item.synced ? 'synced' : 'pending'}">
+          ${item.synced ? 'Synced' : 'Pending Sync'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHTML(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function syncItemsToSupabase() {
+  const items = getLocalItems();
+  const pending = items.filter(i => !i.synced);
+
+  if (!pending.length) return;
+
+  $('net').textContent = 'Syncing...';$('net').className = 'status syncing';
+
+  try {
+    // Connect to Supabase endpoint directly or via existing client
+    const SUPABASE_URL = 'https://dnbvxrssdupuklorzlsn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.bbfun-aUlE8HY9Ym9Tyl9dffUxuJcdtoAbKIIgoUtQ0';
+
+    for (let item of pending) {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/market_outlets`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          name: item.name,
+          outlet_type: item.category,
+          estimated_demand: item.quantity.toString(),
+          notes: `Price: $${item.price}`
+        })
+      });
+
+      if (resp.ok) {
+        item.synced = true;
+      }
+    }
+
+    saveLocalItems(items);
+    updateOnlineStatus();
+  } catch (err) {
+    console.log('Supabase sync will retry when connection stabilizes', err);
+    updateOnlineStatus();
+  }
+}
+
+/* ==========================================================================
+   5. Online / Offline Monitoring
+   ========================================================================== */
+function updateOnlineStatus() {
+  const isOnline = navigator.onLine;
+  const netEl = $('net');
+  const offNote = $('offline');
+
+  if (isOnline) {
+    netEl.textContent = 'Online';
+    netEl.className = 'status online';
+    offNote.classList.add('hide');
+    syncItemsToSupabase();
+  } else {
+    netEl.textContent = 'Offline Mode';
+    netEl.className = 'status offline';
+    offNote.classList.remove('hide');
+  }
+}
+
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+/* ==========================================================================
+   6. Workspace Embedded Frame Loader
+   ========================================================================== */
+const embeddedModules = {
+  management: { title: 'Farm Management', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">GIS Map & Management Data Cached Locally</h3></body></html>' },
+  buyer: { title: 'Buyer Marketplace', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">Marketplace View Cached</h3></body></html>' }
+};
+
+function openWorkspace(type) {
+  if (type === 'seller') {
+    showOnly('sellerView');
+    renderItems();
+    return;
+  }
+
+  showOnly('workspaceView');
+  let mod = embeddedModules[type] || { title: 'Workspace', data: '' };
+  $('workTitle').textContent = mod.title;
+  let doc = $('frame').contentDocument \vert{}\vert{}$('frame').contentWindow.document;
+  doc.open();
+  doc.write(mod.data);
+  doc.close();
+}
+
+function exitWorkspace() {
+  showOnly('roleView');
+}
+
+// Initial Check on Load
+document.addEventListener('DOMContentLoaded', () => {
+  updateOnlineStatus();
+  renderItems();
+
+  // Automatic One-Time Login Check (WhatsApp style persistent session)
+  if (getSession()) {
+    enter();
+  } else {
+    showOnly('authView');
+  }
+});
+</script>
+
+</body>
+</html>
