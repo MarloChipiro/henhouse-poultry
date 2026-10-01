@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Henhouse Hub">
 
 <style>
-:root{--g:#1f6644;--d:#153d2b;--lime:#dff2bc;--cream:#f5f7f1;--ink:#20332a;--muted:#6d7e75;--line:#dfe7df;--white:#fff;--shadow:0 18px 55px #153d2b1d}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink)}body{display:flex;flex-direction:column}a{color:inherit;text-decoration:none}.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;background:linear-gradient(135deg,var(--g),var(--d));color:var(--white);box-shadow:var(--shadow)}.brand{display:flex;align-items:center;gap:14px;font-weight:700}.logo{font-size:2rem;line-height:1}.brand div{display:flex;flex-direction:column;gap:2px;font-size:1.1rem}.brand small{font-size:.72rem;opacity:.9}.status{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.18);font-size:.82rem;font-weight:700}.shell{padding:28px 18px 36px}.hero{max-width:520px;margin:0 auto}.auth{background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:26px 22px}.auth h1{margin:0 0 10px;font-size:clamp(2.1rem,5vw,2.8rem)}.auth p{margin:0 0 18px;color:var(--muted);line-height:1.5}.tabs{display:flex;gap:10px;margin-bottom:16px}.tabs button,.role,.back,.workbar button{cursor:pointer}.tabs button{flex:1;border:1px solid var(--line);background:#f0f3ef;border-radius:12px;padding:12px 10px;font-weight:700;color:var(--ink)}.tabs button.active{background:var(--g);color:var(--white);border-color:var(--g)}.field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}.field label{font-weight:700;color:var(--ink)}.field input{padding:12px 14px;border-radius:12px;border:1px solid var(--line);font:inherit;background:#fff}.field input:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(31,102,68,.12)}.hide{display:none !important}.err{min-height:22px;margin:8px 0 14px;color:#b42318;font-weight:700}.primary{width:100%;border:none;border-radius:12px;padding:14px 18px;background:linear-gradient(135deg,var(--g),#2d7c57);color:var(--white);font:inherit;font-weight:800;cursor:pointer}.hint{margin-top:14px;font-size:.82rem;color:var(--muted);line-height:1.5}.choose{max-width:980px;margin:0 auto}.choosehead{margin:0 auto 18px;text-align:center}.choosehead h1{margin:0 0 8px;font-size:clamp(1.9rem,4vw,2.8rem)}.choosehead p{margin:0;color:var(--muted)}.rolegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.role{display:flex;flex-direction:column;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;min-height:180px;box-shadow:0 10px 20px rgba(21,61,43,.05)}.role .ico{font-size:2.3rem;line-height:1;margin-bottom:8px}.role h2{margin:0 0 8px;font-size:1.25rem}.role p{margin:0;color:var(--muted);line-height:1.5}.farmergrid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.back{align-self:flex-start;border:none;background:transparent;color:var(--g);font-weight:700;padding:0 0 16px}.workbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}.workbar button{border:none;background:#f2f5f1;padding:10px 14px;border-radius:10px;color:var(--ink);font-weight:700}.worktitle{font-weight:800}.workspace{padding:16px}.withbar{padding-top:0}.workspace iframe{width:100%;height:70vh;border:none;border-radius:18px;background:#fff;box-shadow:var(--shadow)}.offline-note{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#a92b2b;color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+:root{--g:#1f6644;--d:#153d2b;--lime:#dff2bc;--cream:#f5f7f1;--ink:#20332a;--muted:#6d7e75;--line:#dfe7df;--white:#fff;--shadow:0 18px 55px #153d2b1d}*{box-sizing:border-box}html,body{margin:0;min[...]
 </style>
 </head>
 <body>
@@ -78,10 +78,10 @@
 const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#163f2b"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="52" fill="#f5f7f1">🐔</text></svg>`;
 
 function encodeSvgToBase64(str) {
-  const bytes = new TextEncoder().encode(str);
+  const utf8Bytes = new TextEncoder().encode(str);
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < utf8Bytes.length; i++) {
+    binary += String.fromCharCode(utf8Bytes[i]);
   }
   return btoa(binary);
 }
@@ -261,7 +261,7 @@ const embeddedModules = {
 <style>
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; color: #222; overflow: hidden; }
-header { height: 64px; background: #14532d; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; box-shadow: 0 2px 8px rgba(0,0,0,.18); position: relative; }
+header { height: 64px; background: #14532d; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; box-shadow: 0 2px 8px rgba(0,0,0,.18); position: rel[...]
 .header-title { display: flex; flex-direction: column; }
 .header-title strong { font-size: 19px; }
 .header-title span { font-size: 12px; opacity: .85; }
@@ -270,12 +270,12 @@ main { position: absolute; top: 64px; bottom: 58px; left: 0; right: 0; }
 .view { display: none; width: 100%; height: 100%; }
 .view.active { display: block; }
 #map { position: absolute; inset: 0; }
-#panel { position: absolute; z-index: 900; right: 12px; top: 12px; width: 340px; max-width: calc(100% - 24px); max-height: calc(100% - 24px); overflow-y: auto; background: rgba(255,255,255,.97); border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.18); padding: 14px; }
+#panel { position: absolute; z-index: 900; right: 12px; top: 12px; width: 340px; max-width: calc(100% - 24px); max-height: calc(100% - 24px); overflow-y: auto; background: rgba(255,255,255,.97); [..]
 .panel-section { padding-bottom: 13px; margin-bottom: 13px; border-bottom: 1px solid #e5e7eb; }
 .panel-section:last-child { border-bottom: none; margin-bottom: 0; }
 .panel-section h3 { margin: 0 0 8px; color: #14532d; font-size: 15px; }
 .loading-panel { color: #555; text-align: center; padding: 15px 5px; }
-.legend { position: absolute; z-index: 900; left: 12px; bottom: 12px; background: rgba(255,255,255,.95); padding: 10px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.18); font-size: 12px; }
+.legend { position: absolute; z-index: 900; left: 12px; bottom: 12px; background: rgba(255,255,255,.95); padding: 10px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.18); font-size: 12p[...]
 .legend-title { font-weight: bold; margin-bottom: 6px; }
 .legend-row { display: flex; align-items: center; margin: 4px 0; }
 .legend-dot { width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; }
@@ -370,7 +370,7 @@ nav button.active { color: #14532d; font-weight: bold; background: #ecfdf5; }
 
 <script>
 const SUPABASE_URL = 'https://dnbvxrssdupuklorzlsn.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.bbf081e8d0e4db36f436b233468cd62d5092a4e5c11ddea64a1bce4bbf3af0b3';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.bbf[...]
 
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -417,7 +417,7 @@ function renderRecords() {
     req.result.reverse().forEach(r => {
       let div = document.createElement('div');
       div.className = 'record-item';
-      div.innerHTML = '<strong>' + escapeHTML(r.farm_name) + '</strong> (' + (r.birds||0) + ' birds)<br>' + escapeHTML(r.notes||'') + '<br><small style="color:'+(r.synced?'green':'#d97706')+'">' + (r.synced ? 'Synced' : 'Pending sync') + '</small>';
+      div.innerHTML = '<strong>' + escapeHTML(r.farm_name) + '</strong> (' + (r.birds||0) + ' birds)<br>' + escapeHTML(r.notes||'') + '<br><small style="color:'+(r.synced?'green':'#d97706')+'">' + (r.synced ? 'Synced' : 'Queued') + '</small>';
       list.appendChild(div);
     });
   };
