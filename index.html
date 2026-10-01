@@ -375,67 +375,9 @@
 
 <script>
 /* ==========================================================================
-   1. PWA Dynamic Manifest & Icon Generator
+   CRITICAL: Define all functions that are called via onclick FIRST
    ========================================================================== */
-(function setupPWA() {
-  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#163f2b"/><text x="50%" y="68%" font-size="280" text-anchor="middle">🐔</text></svg>`;
-  const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSVG);
 
-  const manifest = {
-    name: "Henhouse Poultry Hub",
-    short_name: "PoultryHub",
-    start_url: "./",
-    display: "standalone",
-    background_color: "#163f2b",
-    theme_color: "#163f2b",
-    icons: [
-      { src: iconUrl, sizes: "192x192", type: "image/svg+xml" },
-      { src: iconUrl, sizes: "512x512", type: "image/svg+xml" }
-    ]
-  };
-
-  const stringManifest = JSON.stringify(manifest);
-  const blob = new Blob([stringManifest], { type: 'application/json' });
-  document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(blob));
-})();
-
-/* ==========================================================================
-   2. Service Worker Inline Registration for Offline Caching
-   ========================================================================== */
-if ('serviceWorker' in navigator) {
-  const swCode = `
-    const CACHE_NAME = 'poultry-hub-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-          return cache.addAll(['./']);
-        })
-      );
-      self.skipWaiting();
-    });
-
-    self.addEventListener('fetch', e => {
-      e.respondWith(
-        caches.match(e.request).then(response => {
-          return response || fetch(e.request).then(fetchRes => {
-            return caches.open(CACHE_NAME).then(cache => {
-              if (e.request.url.startsWith('http')) {
-                cache.put(e.request, fetchRes.clone());
-              }
-              return fetchRes;
-            });
-          });
-        }).catch(() => caches.match('./'))
-      );
-    });
-  `;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-}
-
-/* ==========================================================================
-3. One-Time Session Management & Auth Fix
-   ========================================================================== */
 const accountsKey = 'henhouse_accounts_v1';
 const sessionKey = 'henhouse_persistent_session_v1';
 const itemsKey = 'henhouse_offline_items_v1';
@@ -443,6 +385,7 @@ const itemsKey = 'henhouse_offline_items_v1';
 let mode = 'in';
 const $ = id => document.getElementById(id);
 
+// ============== CORE AUTH FUNCTIONS ==============
 function setMode(m) {
   mode = m;
   const isSignUp = (m === 'up');
@@ -476,32 +419,6 @@ async function digest(s) {
   return btoa(unescape(encodeURIComponent(s)));
 }
 
-$('authForm').onsubmit = async e => {
-  e.preventDefault();
-  let email = $('email').value.trim().toLowerCase();
-  let pass = $('password').value;
-  let a = accounts();
-  let h = await digest(pass);
-
-  if (mode === 'up') {
-    let n = $('name').value.trim();
-    if (!n) return $('err').textContent = 'Please enter your name.';
-    if (pass !== $('confirm').value) return $('err').textContent = 'Passwords do not match.';
-    if (a[email]) return $('err').textContent = 'An account with this email already exists.';
-    
-    a[email] = { name: n, hash: h };
-    localStorage.setItem(accountsKey, JSON.stringify(a));
-    localStorage.setItem(sessionKey, JSON.stringify({ email, name: n }));
-    enter();
-  } else {
-    if (!a[email] || a[email].hash !== h) {
-      return $('err').textContent = 'Incorrect email or password. If you are new, click "Sign up" first.';
-    }
-    localStorage.setItem(sessionKey, JSON.stringify({ email, name: a[email].name }));
-    enter();
-  }
-};
-
 function getSession() {
   try { return JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch { return null; }
 }
@@ -528,9 +445,7 @@ function farmerOptions() {
   showOnly('farmerView');
 }
 
-/* ==========================================================================
-   4. Offline Item Creation & Supabase Sync Engine
-   ========================================================================== */
+// ============== OFFLINE ITEM FUNCTIONS ==============
 function getLocalItems() {
   try { return JSON.parse(localStorage.getItem(itemsKey) || '[]'); } catch { return []; }
 }
@@ -539,34 +454,6 @@ function saveLocalItems(items) {
   localStorage.setItem(itemsKey, JSON.stringify(items));
   renderItems();
 }
-
-$('itemForm').onsubmit = function(e) {
-  e.preventDefault();
-  const name = $('itemName').value.trim();
-  const category = $('itemCategory').value;
-  const price = parseFloat($('itemPrice').value);
-  const qty = parseInt($('itemQty').value, 10);
-
-  const newItem = {
-    id: 'item_' + Date.now(),
-    name: name,
-    category: category,
-    price: price,
-    quantity: qty,
-    created_at: new Date().toISOString(),
-    synced: false
-  };
-
-  const items = getLocalItems();
-  items.unshift(newItem);
-  saveLocalItems(items);
-
-  $('itemForm').reset();
-
-  if (navigator.onLine) {
-    syncItemsToSupabase();
-  }
-};
 
 function renderItems() {
   const items = getLocalItems();
@@ -605,7 +492,7 @@ async function syncItemsToSupabase() {
 
   try {
     const SUPABASE_URL = 'https://dnbvxrssdupuklorzlsn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.bbfun-aUlE8HY9Ym9Tyl9dffUxuJcdtoAbKIIgoUtQ0';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.Lx-sV3hJvZvBYN8xY_f1xZN0X1ZQc1zK9rZxQxB2v7w';
 
     for (let item of pending) {
       const resp = await fetch(`${SUPABASE_URL}/rest/v1/market_outlets`, {
@@ -637,37 +524,7 @@ async function syncItemsToSupabase() {
   }
 }
 
-/* ==========================================================================
-   5. Online / Offline Monitoring
-   ========================================================================== */
-function updateOnlineStatus() {
-  const isOnline = navigator.onLine;
-  const netEl = $('net');
-  const offNote = $('offline');
-
-  if (isOnline) {
-    netEl.textContent = 'Online';
-    netEl.className = 'status online';
-    offNote.classList.add('hide');
-    syncItemsToSupabase();
-  } else {
-    netEl.textContent = 'Offline Mode';
-    netEl.className = 'status offline';
-    offNote.classList.remove('hide');
-  }
-}
-
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-
-/* ==========================================================================
-   6. Workspace Embedded Frame Loader
-   ========================================================================== */
-const embeddedModules = {
-  management: { title: 'Farm Management', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">GIS Map & Management Data Cached Locally</h3></body></html>' },
-  buyer: { title: 'Buyer Marketplace', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">Marketplace View Cached</h3></body></html>' }
-};
-
+// ============== WORKSPACE FUNCTIONS ==============
 function openWorkspace(type) {
   if (type === 'seller') {
     showOnly('sellerView');
@@ -688,6 +545,157 @@ function exitWorkspace() {
   showOnly('roleView');
 }
 
+// ============== ONLINE/OFFLINE MONITORING ==============
+function updateOnlineStatus() {
+  const isOnline = navigator.onLine;
+  const netEl = $('net');
+  const offNote = $('offline');
+
+  if (isOnline) {
+    netEl.textContent = 'Online';
+    netEl.className = 'status online';
+    offNote.classList.add('hide');
+    syncItemsToSupabase();
+  } else {
+    netEl.textContent = 'Offline Mode';
+    netEl.className = 'status offline';
+    offNote.classList.remove('hide');
+  }
+}
+
+/* ==========================================================================
+   1. PWA Dynamic Manifest & Icon Generator
+   ========================================================================== */
+(function setupPWA() {
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#163f2b"/><text x="50%" y="68%" font-size="280" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif">🐔</text></svg>`;
+  const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSVG);
+
+  const manifest = {
+    name: "Henhouse Poultry Hub",
+    short_name: "PoultryHub",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#163f2b",
+    theme_color: "#163f2b",
+    icons: [
+      { src: iconUrl, sizes: "192x192", type: "image/svg+xml" },
+      { src: iconUrl, sizes: "512x512", type: "image/svg+xml" }
+    ]
+  };
+
+  const stringManifest = JSON.stringify(manifest);
+  const blob = new Blob([stringManifest], { type: 'application/json' });
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = URL.createObjectURL(blob);
+  document.head.appendChild(manifestLink);
+})();
+
+/* ==========================================================================
+   2. Service Worker Inline Registration for Offline Caching
+   ========================================================================== */
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE_NAME = 'poultry-hub-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+          return cache.addAll(['./']);
+        })
+      );
+      self.skipWaiting();
+    });
+
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(response => {
+          return response || fetch(e.request).then(fetchRes => {
+            return caches.open(CACHE_NAME).then(cache => {
+              if (e.request.url.startsWith('http')) {
+                cache.put(e.request, fetchRes.clone());
+              }
+              return fetchRes;
+            });
+          });
+        }).catch(() => caches.match('./'))
+      );
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+/* ==========================================================================
+   3. Embedded Modules
+   ========================================================================== */
+const embeddedModules = {
+  management: { title: 'Farm Management', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">GIS Map & Management Data Cached Locally</h3></body></html>' },
+  buyer: { title: 'Buyer Marketplace', data: '<html><body><h3 style="padding:20px; font-family:sans-serif;">Marketplace View Cached</h3></body></html>' }
+};
+
+/* ==========================================================================
+   4. Setup Form Handlers
+   ========================================================================== */
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  let email = $('email').value.trim().toLowerCase();
+  let pass = $('password').value;
+  let a = accounts();
+  let h = await digest(pass);
+
+  if (mode === 'up') {
+    let n = $('name').value.trim();
+    if (!n) return $('err').textContent = 'Please enter your name.';
+    if (pass !== $('confirm').value) return $('err').textContent = 'Passwords do not match.';
+    if (a[email]) return $('err').textContent = 'An account with this email already exists.';
+    
+    a[email] = { name: n, hash: h };
+    localStorage.setItem(accountsKey, JSON.stringify(a));
+    localStorage.setItem(sessionKey, JSON.stringify({ email, name: n }));
+    enter();
+  } else {
+    if (!a[email] || a[email].hash !== h) {
+      return $('err').textContent = 'Incorrect email or password. If you are new, click "Sign up" first.';
+    }
+    localStorage.setItem(sessionKey, JSON.stringify({ email, name: a[email].name }));
+    enter();
+  }
+};
+
+$('itemForm').onsubmit = function(e) {
+  e.preventDefault();
+  const name = $('itemName').value.trim();
+  const category = $('itemCategory').value;
+  const price = parseFloat($('itemPrice').value);
+  const qty = parseInt($('itemQty').value, 10);
+
+  const newItem = {
+    id: 'item_' + Date.now(),
+    name: name,
+    category: category,
+    price: price,
+    quantity: qty,
+    created_at: new Date().toISOString(),
+    synced: false
+  };
+
+  const items = getLocalItems();
+  items.unshift(newItem);
+  saveLocalItems(items);
+
+  $('itemForm').reset();
+
+  if (navigator.onLine) {
+    syncItemsToSupabase();
+  }
+};
+
+/* ==========================================================================
+   5. Event Listeners
+   ========================================================================== */
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
 // Initial Check on Load
 document.addEventListener('DOMContentLoaded', () => {
   updateOnlineStatus();
@@ -699,14 +707,15 @@ document.addEventListener('DOMContentLoaded', () => {
     showOnly('authView');
   }
 });
+
 // Register Service Worker for PWA functionality
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker registered:', reg.scope))
-        .catch(err => console.error('Service Worker registration failed:', err));
-    });
-  } 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registered:', reg.scope))
+      .catch(err => console.error('Service Worker registration failed:', err));
+  });
+}
 </script>
 
 </body>
