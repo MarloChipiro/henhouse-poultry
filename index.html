@@ -568,8 +568,7 @@ function updateOnlineStatus() {
    ========================================================================== */
 (function setupPWA() {
   const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#163f2b"/><text x="50%" y="68%" font-size="280" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif">🐔</text></svg>`;
-  const iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSVG);
-
+  const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSVG)));
   const manifest = {
     name: "Henhouse Poultry Hub",
     short_name: "PoultryHub",
