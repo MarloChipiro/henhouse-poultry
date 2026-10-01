@@ -434,7 +434,7 @@ if ('serviceWorker' in navigator) {
 }
 
 /* ==========================================================================
-   3. WhatsApp-Style Persistent One-Time Session Management
+3. One-Time Session Management & Auth Fix
    ========================================================================== */
 const accountsKey = 'henhouse_accounts_v1';
 const sessionKey = 'henhouse_persistent_session_v1';
@@ -443,26 +443,25 @@ const itemsKey = 'henhouse_offline_items_v1';
 let mode = 'in';
 const $ = id => document.getElementById(id);
 
-// REVISED setMode FUNCTION
 function setMode(m) {
   mode = m;
   const isSignUp = (m === 'up');
   
   // Update Tab Styling
-  document.getElementById('inTab').classList.toggle('active', !isSignUp);
-  document.getElementById('upTab').classList.toggle('active', isSignUp);
+  $('inTab').classList.toggle('active', !isSignUp);
+  $('upTab').classList.toggle('active', isSignUp);
   
   // Toggle Input Visibility
-  document.getElementById('nameField').classList.toggle('hide', !isSignUp);
-  document.getElementById('confirmField').classList.toggle('hide', !isSignUp);
+  $('nameField').classList.toggle('hide', !isSignUp);
+  $('confirmField').classList.toggle('hide', !isSignUp);
   
   // Toggle Required Attributes
-  document.getElementById('name').required = isSignUp;
-  document.getElementById('confirm').required = isSignUp;
+  $('name').required = isSignUp;
+  $('confirm').required = isSignUp;
   
   // Update Submit Button Text & Clear Errors
-  document.getElementById('submitBtn').textContent = isSignUp ? 'Create account →' : 'Sign in →';
-  document.getElementById('err').textContent = '';
+  $('submitBtn').textContent = isSignUp ? 'Create account →' : 'Sign in →';
+  $('err').textContent = '';
 }
 
 function accounts() {
@@ -470,7 +469,7 @@ function accounts() {
 }
 
 async function digest(s) {
-  if (crypto.subtle) {
+  if (window.crypto && crypto.subtle) {
     let b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
     return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
   }
@@ -487,14 +486,17 @@ $('authForm').onsubmit = async e => {
   if (mode === 'up') {
     let n = $('name').value.trim();
     if (!n) return $('err').textContent = 'Please enter your name.';
-    if (pass !== $('confirm').value) return$('err').textContent = 'Passwords do not match.';
+    if (pass !== $('confirm').value) return $('err').textContent = 'Passwords do not match.';
     if (a[email]) return $('err').textContent = 'An account with this email already exists.';
+    
     a[email] = { name: n, hash: h };
     localStorage.setItem(accountsKey, JSON.stringify(a));
     localStorage.setItem(sessionKey, JSON.stringify({ email, name: n }));
     enter();
   } else {
-    if (!a[email] || a[email].hash !== h) return $('err').textContent = 'Incorrect email or password.';
+    if (!a[email] || a[email].hash !== h) {
+      return $('err').textContent = 'Incorrect email or password. If you are new, click "Sign up" first.';
+    }
     localStorage.setItem(sessionKey, JSON.stringify({ email, name: a[email].name }));
     enter();
   }
