@@ -1,24 +1,23 @@
 {
-  "name": "Henhouse Poultry Hub",
+  "id": "com.henhouse.poultryhub",
+  "name": "PoultryHub",
   "short_name": "PoultryHub",
+  "description": "Comprehensive management and tracking platform for poultry production.",
+  "categories": ["business", "productivity", "utilities"],
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#163f2b",
-  "theme_color": "#163f2b",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
