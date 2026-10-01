@@ -236,10 +236,13 @@
     <div class="auth">
       <h1>Welcome</h1>
       <p>Log in once to access your farm features anywhere, online or offline.</p>
+
+      <!-- UPDATED TAB BUTTONS WITH type="button" -->
       <div class="tabs">
-        <button id="inTab" class="active" onclick="setMode('in')">Sign in</button>
-        <button id="upTab" onclick="setMode('up')">Sign up</button>
+        <button type="button" id="inTab" class="active" onclick="setMode('in')">Sign in</button>
+        <button type="button" id="upTab" onclick="setMode('up')">Sign up</button>
       </div>
+
       <form id="authForm">
         <div class="field hide" id="nameField">
           <label>Full name</label>
@@ -260,7 +263,7 @@
         <div id="err" class="err"></div>
         <button class="primary" id="submitBtn">Sign in →</button>
       </form>
-      <p class="hint">⚡ Offline Ready: Logging in stays active on this device like WhatsApp. You can add items offline and sync when connected.</p>
+      <p class="hint">⚡ Offline Ready:You can add items offline and sync when connected.</p>
     </div>
   </section>
 
@@ -371,7 +374,7 @@
 
 <script>
 /* ==========================================================================
-   1. PWA Dynamic Manifest & Icon Generator (Adds Homescreen App Capability)
+   1. PWA Dynamic Manifest & Icon Generator
    ========================================================================== */
 (function setupPWA() {
   const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#163f2b"/><text x="50%" y="68%" font-size="280" text-anchor="middle">🐔</text></svg>`;
@@ -411,7 +414,6 @@ if ('serviceWorker' in navigator) {
     });
 
     self.addEventListener('fetch', e => {
-      // Offline-first strategy
       e.respondWith(
         caches.match(e.request).then(response => {
           return response || fetch(e.request).then(fetchRes => {
@@ -434,21 +436,32 @@ if ('serviceWorker' in navigator) {
    3. WhatsApp-Style Persistent One-Time Session Management
    ========================================================================== */
 const accountsKey = 'henhouse_accounts_v1';
-const sessionKey = 'henhouse_persistent_session_v1'; // LocalStorage for 1-time login
+const sessionKey = 'henhouse_persistent_session_v1';
 const itemsKey = 'henhouse_offline_items_v1';
 
 let mode = 'in';
 const $ = id => document.getElementById(id);
 
+// REVISED setMode FUNCTION
 function setMode(m) {
   mode = m;
-  let up = m === 'up';
-  $('inTab').classList.toggle('active', !up);
-  $('upTab').classList.toggle('active', up);$('nameField').classList.toggle('hide', !up);
-  $('confirmField').classList.toggle('hide', !up);$('name').required = up;
-  $('confirm').required = up;
-  $('submitBtn').textContent = up ? 'Create account →' : 'Sign in →';
-  $('err').textContent = '';
+  const isSignUp = (m === 'up');
+  
+  // Update Tab Styling
+  document.getElementById('inTab').classList.toggle('active', !isSignUp);
+  document.getElementById('upTab').classList.toggle('active', isSignUp);
+  
+  // Toggle Input Visibility
+  document.getElementById('nameField').classList.toggle('hide', !isSignUp);
+  document.getElementById('confirmField').classList.toggle('hide', !isSignUp);
+  
+  // Toggle Required Attributes
+  document.getElementById('name').required = isSignUp;
+  document.getElementById('confirm').required = isSignUp;
+  
+  // Update Submit Button Text & Clear Errors
+  document.getElementById('submitBtn').textContent = isSignUp ? 'Create account →' : 'Sign in →';
+  document.getElementById('err').textContent = '';
 }
 
 function accounts() {
@@ -477,7 +490,6 @@ $('authForm').onsubmit = async e => {
     if (a[email]) return $('err').textContent = 'An account with this email already exists.';
     a[email] = { name: n, hash: h };
     localStorage.setItem(accountsKey, JSON.stringify(a));
-    // Store persistently so user stays logged in
     localStorage.setItem(sessionKey, JSON.stringify({ email, name: n }));
     enter();
   } else {
@@ -548,7 +560,6 @@ $('itemForm').onsubmit = function(e) {
 
   $('itemForm').reset();
 
-  // Try syncing right away if online
   if (navigator.onLine) {
     syncItemsToSupabase();
   }
@@ -590,7 +601,6 @@ async function syncItemsToSupabase() {
   $('net').textContent = 'Syncing...';$('net').className = 'status syncing';
 
   try {
-    // Connect to Supabase endpoint directly or via existing client
     const SUPABASE_URL = 'https://dnbvxrssdupuklorzlsn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYnZ4cnNzZHVwdWtsb3J6bHNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzkwMTcsImV4cCI6MjEwNjM1NTAxN30.bbfun-aUlE8HY9Ym9Tyl9dffUxuJcdtoAbKIIgoUtQ0';
 
@@ -680,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateOnlineStatus();
   renderItems();
 
-  // Automatic One-Time Login Check (WhatsApp style persistent session)
   if (getSession()) {
     enter();
   } else {
