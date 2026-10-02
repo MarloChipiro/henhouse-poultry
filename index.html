@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#34270d">
+  <title>Henhouse Poultry Hub</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root{--brand:#815b12;--brand-deep:#34270d;--gold:#e6b84f;--gold-pale:#fbf4df;--canvas:#f3f2ee;--surface:#fff;--ink:#24251f;--muted:#77776e;--line:#e5e3dc;--shadow:0 18px 50px rgba(43,36,17,.09)}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--canvas);color:var(--ink)}button,input{font:inherit}.hide{display:none!important}
+    .app-header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,54px);position:relative;z-index:10}.brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;font-weight:750;letter-spacing:.01em}.brand img{width:43px;height:43px;object-fit:cover;border-radius:50%;background:#8a620d}.brand-name{display:block;font-size:15px}.brand small{display:block;color:var(--muted);font-size:9px;font-weight:650;letter-spacing:.17em;margin-top:3px}.status{font-size:11px;color:#68685e;display:flex;align-items:center;gap:8px}.status:before{content:"";width:8px;height:8px;border-radius:50%;background:#558461;box-shadow:0 0 0 3px #55846118}.shell{min-height:calc(100vh - 72px)}
+    .auth-layout{width:min(1210px,calc(100% - 48px));min-height:min(730px,calc(100vh - 124px));margin:26px auto;display:grid;grid-template-columns:1.05fr .95fr;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}.brand-story{background:var(--brand-deep);color:#fff;position:relative;overflow:hidden;padding:44px clamp(30px,5vw,72px);display:flex;flex-direction:column;justify-content:space-between}.brand-story:after{content:"";position:absolute;width:480px;height:480px;border:1px solid #d5a8392b;border-radius:50%;right:-220px;bottom:-280px;box-shadow:0 0 0 35px #d5a8390d,0 0 0 80px #d5a83908}.story-brand{width:min(360px,85%);margin:0 auto 26px;display:block;mix-blend-mode:normal}.story-kicker,.auth-kicker,.portal-kicker{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:750}.story-kicker{color:#dfb64f}.story-copy{position:relative;z-index:1;max-width:490px}.story-copy h2{font-size:clamp(30px,4vw,50px);line-height:1.08;letter-spacing:-.045em;font-weight:650;margin:17px 0}.story-copy p{color:#d4cec0;max-width:440px;line-height:1.75;font-size:14px}.story-foot{border-top:1px solid #ffffff28;padding-top:17px;color:#c4beaf;font-size:10px;letter-spacing:.07em;position:relative;z-index:1}.auth-panel{display:grid;place-items:center;padding:42px clamp(24px,5vw,68px)}.auth-card{width:min(390px,100%)}.auth-kicker{color:var(--brand)}.auth h1{font-size:29px;letter-spacing:-.035em;margin:10px 0 7px;font-weight:680}.auth>p{font-size:13px;color:var(--muted);margin:0 0 25px;line-height:1.55}.tabs{display:flex;border-bottom:1px solid var(--line);gap:24px;margin-bottom:22px}.tabs button{border:0;background:none;color:var(--muted);font-size:12px;font-weight:650;padding:0 0 12px;cursor:pointer;position:relative}.tabs button.active{color:var(--brand)}.tabs button.active:after{content:"";height:2px;background:var(--brand);position:absolute;bottom:-1px;left:0;right:0}.field{margin:13px 0}.field label{display:block;font-size:11px;font-weight:650;color:#57574e;margin-bottom:6px}.field input{width:100%;border:1px solid #dcdad2;background:#fff;padding:12px 13px;border-radius:4px;outline:none;font-size:13px}.field input:focus{border-color:#a98432;box-shadow:0 0 0 3px #e8c65b24}.primary{width:100%;border:0;background:var(--brand);color:white;padding:13px;border-radius:4px;font-weight:700;cursor:pointer;margin-top:5px;transition:background .15s}.primary:hover{background:#69490e}.err{min-height:18px;color:#a92b2b;font-size:12px;margin:8px 0}.hint{font-size:10px!important;line-height:1.6!important;color:#8b897f!important;margin-top:18px!important}
+    .portal{max-width:1120px;margin:0 auto;padding:58px 28px 70px}.portal-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}.portal-kicker{color:var(--brand)}.portal-head h1{font-size:34px;letter-spacing:-.04em;margin:9px 0 7px;font-weight:650}.portal-head p{color:var(--muted);font-size:13px;margin:0}.quiet-button,.back{border:1px solid var(--line);background:#fff;color:#55554d;padding:9px 12px;border-radius:4px;font-size:11px;font-weight:650;cursor:pointer}.portal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.portal-card{min-height:235px;padding:25px 27px;background:#fff;border:1px solid var(--line);text-align:left;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:flex-start;transition:border-color .18s,transform .18s,box-shadow .18s}.portal-card:hover{border-color:#b89a56;transform:translateY(-2px);box-shadow:0 14px 32px #34270d0c}.card-index{font-size:10px;color:var(--brand);letter-spacing:.12em;border-bottom:1px solid var(--line);padding-bottom:15px;width:100%}.portal-title{font-size:21px;font-weight:650;margin-top:21px;letter-spacing:-.02em}.portal-card p{font-size:12px;line-height:1.65;color:var(--muted);max-width:430px;margin:8px 0 22px}.card-link{margin-top:auto;font-size:10px;color:var(--brand);font-weight:750;letter-spacing:.12em}.back{margin-bottom:22px}.workspace-view{min-height:calc(100vh - 72px)}.workbar{height:54px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 20px}.workbar button{border:1px solid var(--line);background:#fff;border-radius:4px;padding:8px 12px;cursor:pointer;color:#4d4c43;font-size:11px;font-weight:650}.worktitle{font-size:12px;font-weight:700}.workspace{height:calc(100vh - 126px);position:relative;background:#f7f6f2}.workspace iframe{width:100%;height:100%;border:0;display:block}.offline-note{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:#34270d;color:white;padding:9px 14px;border-radius:3px;font-size:11px;z-index:50;box-shadow:var(--shadow)}
+    @media(max-width:760px){.app-header{height:64px}.shell{min-height:calc(100vh - 64px)}.auth-layout{width:100%;margin:0;min-height:calc(100vh - 64px);grid-template-columns:1fr}.brand-story{min-height:245px;padding:14px 20px}.story-brand{width:150px;margin:0 auto 1px}.story-copy{max-width:520px}.story-copy h2{font-size:25px;margin:5px 0}.story-copy p{font-size:11px;margin:5px 0}.story-foot{display:none}.auth-panel{padding:26px 24px 36px}.portal{padding:38px 18px}.portal-head h1{font-size:27px}.portal-grid{grid-template-columns:1fr}.portal-card{min-height:190px;padding:20px}.workbar{height:50px;padding:0 10px}.workspace{height:calc(100vh - 114px)}}
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase-config.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#" aria-label="Henhouse Poultry Hub">
+      <img src="assets/images/henhouse-mark.jpg" alt="Henhouse emblem">
+      <span>
+        <span class="brand-name">Henhouse</span>
+        <small>POULTRY HUB</small>
+      </span>
+    </a>
+    <div class="status" id="net">Checking connection…</div>
+  </header>
+
+  <main class="shell">
+    <section id="authView" class="auth-layout">
+      <aside class="brand-story">
+        <div>
+          <img class="story-brand" src="assets/images/henhouse-wordmark.jpg" alt="Henhouse Poultry Hub logo">
+          <div class="story-copy">
+            <div class="story-kicker">A better-connected poultry sector</div>
+            <h2>Good decisions begin with a clear view.</h2>
+            <p>Manage your farm, share products with customers, and connect with the people who keep your business moving.</p>
+          </div>
+        </div>
+        <div class="story-foot">FARM OPERATIONS &nbsp;·&nbsp; PRODUCT MARKETPLACE &nbsp;·&nbsp; LOCAL TRADE</div>
+      </aside>
+      <div class="auth-panel">
+        <div class="auth auth-card">
+          <div class="auth-kicker">Account access</div>
+          <h1>Welcome to Henhouse</h1>
+          <p>Sign in to continue to your poultry workspace.</p>
+          <div class="tabs">
+            <button id="inTab" class="active" onclick="setMode('in')">Sign in</button>
+            <button id="upTab" onclick="setMode('up')">Create account</button>
+          </div>
+          <form id="authForm">
+            <div class="field hide" id="nameField">
+              <label for="name">Full name</label>
+              <input id="name" autocomplete="name" placeholder="Your name">
+            </div>
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" type="email" autocomplete="email" required placeholder="name@example.com">
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" minlength="6" required placeholder="Enter your password">
+            </div>
+            <div class="field hide" id="confirmField">
+              <label for="confirm">Confirm password</label>
+              <input id="confirm" type="password" minlength="6" placeholder="Enter your password again">
+            </div>
+            <div id="err" class="err"></div>
+            <button class="primary" id="submitBtn">Sign in</button>
+          </form>
+          <p class="hint">Your Henhouse account is securely connected through Supabase. An internet connection is required for account sign-in and cloud data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="roleView" class="portal hide">
+      <div class="portal-head">
+        <div>
+          <div class="portal-kicker">Your account</div>
+          <h1 id="hello">Choose a workspace</h1>
+          <p>Select how you want to use Henhouse today.</p>
+        </div>
+        <button class="quiet-button" onclick="logout()">Sign out</button>
+      </div>
+      <div class="portal-grid">
+        <button class="portal-card role" onclick="farmerOptions()">
+          <span class="card-index">01 &nbsp; FARM OPERATIONS</span>
+          <span class="portal-title">Farmer workspace</span>
+          <p>Manage farm records, explore decision support tools, and prepare products for sale.</p>
+          <span class="card-link">OPEN FARM WORKSPACE&nbsp; →</span>
+        </button>
+        <button class="portal-card role" onclick="openWorkspace('buyer')">
+          <span class="card-index">02 &nbsp; PRODUCT MARKETPLACE</span>
+          <span class="portal-title">Buyer / Customer</span>
+          <p>Browse poultry products, compare seller listings, ask questions, and plan an order.</p>
+          <span class="card-link">BROWSE THE MARKETPLACE&nbsp; →</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="farmerView" class="portal hide">
+      <button class="back" onclick="showOnly('roleView')">← &nbsp;Account options</button>
+      <div class="portal-head">
+        <div>
+          <div class="portal-kicker">Farmer workspace</div>
+          <h1>What would you like to do?</h1>
+          <p>Choose a farm tool or manage products offered to customers.</p>
+        </div>
+        <button class="quiet-button" onclick="logout()">Sign out</button>
+      </div>
+      <div class="portal-grid">
+        <button class="portal-card role" onclick="openWorkspace('management')">
+          <span class="card-index">01 &nbsp; OPERATIONS</span>
+          <span class="portal-title">Farm management</span>
+          <p>Review farm records, location information, weather, and decision support tools.</p>
+          <span class="card-link">OPEN FARM MANAGEMENT&nbsp; →</span>
+        </button>
+        <button class="portal-card role" onclick="openWorkspace('seller')">
+          <span class="card-index">02 &nbsp; SALES</span>
+          <span class="portal-title">Sell products</span>
+          <p>Create your own catalog, set prices, manage availability, and review sales activity.</p>
+          <span class="card-link">OPEN SELLER WORKSPACE&nbsp; →</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="workspaceView" class="workspace-view hide">
+      <div class="workbar">
+        <button onclick="exitWorkspace()">← &nbsp;Menu</button>
+        <span class="worktitle" id="workTitle">Workspace</span>
+        <button onclick="logout()">Sign out</button>
+      </div>
+      <div class="workspace">
+        <iframe id="frame" title="Poultry workspace"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <div id="offline" class="offline-note hide">Offline mode — locally saved content is available</div>
+
+  <script>
+    let mode='in';
+    const $=id=>document.getElementById(id);
+    let currentUser=null;
+    let currentProfile=null;
+
+    const supabaseClient =
+      (window.supabase && window.HENHOUSE_SUPABASE_URL && window.HENHOUSE_SUPABASE_ANON_KEY)
+        ? window.supabase.createClient(
+            window.HENHOUSE_SUPABASE_URL,
+            window.HENHOUSE_SUPABASE_ANON_KEY,
+            {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}
+          )
+        : null;
+
+    function setMode(m){
+      mode=m;
+      const up=m==='up';
+      $('inTab').classList.toggle('active',!up);
+      $('upTab').classList.toggle('active',up);
+      $('nameField').classList.toggle('hide',!up);
+      $('confirmField').classList.toggle('hide',!up);
+      $('name').required=up;
+      $('confirm').required=up;
+      $('submitBtn').textContent=up?'Create account →':'Sign in →';
+      $('err').textContent='';
+    }
+
+    function showOnly(id){
+      ['authView','roleView','farmerView','workspaceView']
+        .forEach(x=>$(x).classList.toggle('hide',x!==id));
+    }
+
+    function session(){
+      if(!currentUser) return null;
+      const metadata=currentUser.user_metadata||{};
+      const name=(currentProfile&&currentProfile.full_name) || metadata.full_name || currentUser.email || 'User';
+      return {email:currentUser.email,name,user_id:currentUser.id};
+    }
+
+    async function ensureProfile(user, preferredName=''){
+      if(!supabaseClient || !user) return null;
+      const metadata=user.user_metadata||{};
+      const fullName=(preferredName || metadata.full_name || '').trim();
+
+      const {data:existing,error:readError}=await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id',user.id)
+        .maybeSingle();
+
+      if(readError){
+        console.warn('Profile read:',readError.message);
+        return null;
+      }
+      if(existing) return existing;
+
+      const {data:created,error:createError}=await supabaseClient
+        .from('profiles')
+        .insert({id:user.id,full_name:fullName || null})
+        .select()
+        .single();
+
+      if(createError){
+        console.warn('Profile create:',createError.message);
+        return null;
+      }
+      return created;
+    }
+
+    async function enter(user, preferredName=''){
+      currentUser=user||currentUser;
+      if(!currentUser){
+        currentProfile=null;
+        showOnly('authView');
+        return;
+      }
+      currentProfile=await ensureProfile(currentUser,preferredName);
+      const s=session();
+      $('hello').textContent='Welcome, '+((s?.name||'User').split(' ')[0]);
+      showOnly('roleView');
+    }
+
+    function farmerOptions(){
+      showOnly('farmerView');
+    }
+
+    $('authForm').onsubmit=async e=>{
+      e.preventDefault();
+      $('err').textContent='';
+
+      if(!supabaseClient){
+        $('err').textContent='Supabase connection is not available. Check js/supabase-config.js.';
+        return;
+      }
+      if(!navigator.onLine){
+        $('err').textContent='Internet connection is required to sign in or create an account.';
+        return;
+      }
+
+      const email=$('email').value.trim().toLowerCase();
+      const password=$('password').value;
+      const button=$('submitBtn');
+      button.disabled=true;
+
+      try{
+        if(mode==='up'){
+          const name=$('name').value.trim();
+          if(!name) throw new Error('Please enter your name.');
+          if(password!==$('confirm').value) throw new Error('Passwords do not match.');
+
+          const {data,error}=await supabaseClient.auth.signUp({
+            email,
+            password,
+            options:{data:{full_name:name}}
+          });
+          if(error) throw error;
+
+          if(data.session && data.user){
+            currentUser=data.user;
+            await enter(data.user,name);
+            $('authForm').reset();
+            setMode('in');
+          }else{
+            $('err').style.color='#4f6f52';
+            $('err').textContent='Account created. Check your email to confirm your account, then sign in.';
+            $('authForm').reset();
+            setMode('in');
+            $('err').style.color='#4f6f52';
+          }
+        }else{
+          const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+          if(error) throw error;
+          currentUser=data.user;
+          await enter(data.user);
+          $('authForm').reset();
+        }
+      }catch(err){
+        $('err').style.color='#a92b2b';
+        $('err').textContent=err?.message || 'Authentication failed. Please try again.';
+      }finally{
+        button.disabled=false;
+      }
+    };
+
+    function exitWorkspace(){
+      const f=$('frame');
+      if(f){f.onload=null;f.removeAttribute('src');f.srcdoc='';}
+      showOnly('roleView');
+    }
+
+    async function logout(){
+      if(supabaseClient) await supabaseClient.auth.signOut();
+      currentUser=null;
+      currentProfile=null;
+      const f=$('frame');
+      if(f){f.onload=null;f.removeAttribute('src');f.srcdoc='';}
+      $('authForm').reset();
+      setMode('in');
+      showOnly('authView');
+      setTimeout(()=>$('email').focus(),0);
+    }
+
+    async function initialiseAuth(){
+      if(!supabaseClient){
+        $('err').textContent='Supabase connection is not available. Check js/supabase-config.js.';
+        showOnly('authView');
+        return;
+      }
+      const {data,error}=await supabaseClient.auth.getSession();
+      if(error){
+        $('err').textContent=error.message;
+        showOnly('authView');
+        return;
+      }
+      currentUser=data.session?.user || null;
+      if(currentUser) await enter(currentUser);
+      else showOnly('authView');
+
+      supabaseClient.auth.onAuthStateChange((_event,newSession)=>{
+        const newUser=newSession?.user || null;
+        if(!newUser){
+          currentUser=null;
+          currentProfile=null;
+          showOnly('authView');
+        }else{
+          currentUser=newUser;
+        }
+      });
+    }
+
+    const workspaceModules={
+      management:{title:'Farm Management',url:'./pages/farm-management.html'},
+      seller:{title:'Sell Products',url:'./pages/seller.html'},
+      buyer:{title:'Buyer / Customer',url:'./pages/buyer.html'}
+    };
+    function openWorkspace(k){let m=workspaceModules[k];$('workTitle').textContent=m.title;let f=$('frame');f.onload=null;f.removeAttribute('srcdoc');f.src=m.url;f.onload=()=>{if(k==='buyer'){try{let d=f.contentDocument,shade=d.getElementById('loginShade'),btn=d.getElementById('accountBtn');if(shade)shade.style.display='none';if(btn){let s=session();btn.textContent='👤 '+(s?.name?.split(' ')[0]||'Buyer');btn.onclick=()=>{}}}catch(e){}}};showOnly('workspaceView')}
+    function network(){let on=navigator.onLine;$('net').textContent=on?'● Online':'○ Offline';$('offline').classList.toggle('hide',on)}
+    addEventListener('online',network);
+    addEventListener('offline',network);
+    network();
+    initialiseAuth();
+  </script>
+
+  <script>
+    if('serviceWorker' in navigator && location.protocol!=='file:'){
+      window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+    }
+  </script>
+</body>
+</html>
